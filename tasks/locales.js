@@ -164,7 +164,6 @@ module.exports = function (grunt) {
         extendMessages: function (messages, key, obj, update, plain) {
             if (plain) {
               messages[key] = grunt.util.kindOf(obj) === 'string' ? obj : (obj.value ? obj.value : '');
-              messages[key].files.sort();
               return messages;
             }
 
