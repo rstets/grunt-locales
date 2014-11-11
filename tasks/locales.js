@@ -47,6 +47,7 @@ module.exports = function (grunt) {
             },
             htmlminKeys: false,
             jsonSpace: 2,
+            plain: false,
             csvEncapsulator: '"',
             csvDelimiter: ',',
             csvLineEnd: '\r\n',
@@ -160,7 +161,13 @@ module.exports = function (grunt) {
             return this.attributesSelector;
         },
 
-        extendMessages: function (messages, key, obj, update) {
+        extendMessages: function (messages, key, obj, update, plain) {
+            if (plain) {
+              messages[key] = grunt.util.kindOf(obj) === 'string' ? obj : (obj.value ? obj.value : '');
+              messages[key].files.sort();
+              return messages;
+            }
+
             var originalMessage = messages[key];
             // grunt-locales v.4 and lower used a flat format
             // with strings instead of objects as message values:
@@ -238,7 +245,7 @@ module.exports = function (grunt) {
                         that.extendMessages(messages, key, {
                             value: value,
                             files: [file]
-                        });
+                        }, null, that.options.plain);
                     }
                 });
             });
@@ -271,7 +278,7 @@ module.exports = function (grunt) {
                         that.extendMessages(messages, key, {
                             value: key,
                             files: [file]
-                        });
+                        }, null, that.options.plain);
                     }
                 });
             } catch (err) {
@@ -402,7 +409,7 @@ module.exports = function (grunt) {
                     key;
                 for (key in defaultMessages) {
                     if (defaultMessages.hasOwnProperty(key)) {
-                        that.extendMessages(messages, key, defaultMessages[key]);
+                        that.extendMessages(messages, key, defaultMessages[key], null, that.options.plain);
                     }
                 }
                 grunt.log.writeln('Parsed locales from ' + file.cyan + '.');
@@ -440,7 +447,7 @@ module.exports = function (grunt) {
                         // Extend the existing messages with the parsed set:
                         for (key in parsedMessages) {
                             if (parsedMessages.hasOwnProperty(key)) {
-                                that.extendMessages(messages, key, parsedMessages[key]);
+                                that.extendMessages(messages, key, parsedMessages[key], null, that.options.plain);
                             }
                         }
                     } else {
@@ -630,7 +637,7 @@ module.exports = function (grunt) {
                             messages = grunt.file.readJSON(localeFile);
                             for (key in importedMessages) {
                                 if (importedMessages.hasOwnProperty(key)) {
-                                    that.extendMessages(messages, key, importedMessages[key], true);
+                                    that.extendMessages(messages, key, importedMessages[key], true, that.options.plain);
                                 }
                             }
                             grunt.file.write(
