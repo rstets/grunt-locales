@@ -162,7 +162,12 @@ module.exports = function (grunt) {
         },
 
         extendMessages: function (messages, key, obj, update, plain) {
+            var originalMessage = messages[key];
             if (plain) {
+              if (originalMessage && !update) {
+                return messages;
+              }
+
               messages[key] = grunt.util.kindOf(obj) === 'string' ? obj : (obj.value ? obj.value : '');
               return messages;
             }
